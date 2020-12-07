@@ -17,7 +17,8 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
     public void channelRead(ChannelHandlerContext ctx , Object msg) throws Exception {
         final RpcRequest request = (RpcRequest) msg;
 
-        if (request.getServerClass() == SayHelloServer.class) {
+        System.out.println(request.getServerClass());
+        if (SayHelloServer.class.getTypeName().equals("ankang.zookeeper.homework1.rpc.server.SayHelloServer") && "sayHello".equals(request.getServerMethod())) {
             final RpcResponse response = new RpcResponse(request , sayHello());
 
             ctx.channel().writeAndFlush(response);

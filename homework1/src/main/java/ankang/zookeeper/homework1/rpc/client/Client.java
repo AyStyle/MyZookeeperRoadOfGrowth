@@ -1,13 +1,7 @@
 package ankang.zookeeper.homework1.rpc.client;
 
+import ankang.zookeeper.homework1.rpc.client.proxy.SayHelloServerProxy;
 import ankang.zookeeper.homework1.rpc.server.SayHelloServer;
-import ankang.zookeeper.homework1.rpc.service.channel.SayHelloInboundHandler;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 
 /**
  * @author: ankang
@@ -16,10 +10,15 @@ import io.netty.channel.socket.SocketChannel;
  */
 public class Client {
 
-    public static void main(String[] args) {
-        final SayHelloServer sayHelloServer = new SayHelloInboundHandler();
+    public static void main(String[] args) throws InterruptedException {
+        final SayHelloServer sayHelloServer = new SayHelloServerProxy();
 
-        sayHelloServer.sayHello();
+        while (true) {
+            final String s = sayHelloServer.sayHello();
+            System.out.println(s);
+            Thread.sleep(1000);
+        }
+
     }
 
 }

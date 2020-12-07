@@ -13,12 +13,12 @@ import lombok.Getter;
 public class RpcRequest {
 
     @Getter
-    private final Class serverClass;
+    private final String serverClass;
 
     @Getter
     private final String serverMethod;
 
-    public RpcRequest(Class serverClass , String serverMethod) {
+    public RpcRequest(String serverClass , String serverMethod) {
         this.serverClass = serverClass;
         this.serverMethod = serverMethod;
     }

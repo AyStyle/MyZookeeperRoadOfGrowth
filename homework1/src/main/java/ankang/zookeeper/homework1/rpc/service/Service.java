@@ -29,7 +29,10 @@ public class Service {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new SayHelloInboundHandler());
+                        ch.pipeline()
+                                .addLast()
+                                .addLast()
+                                .addLast(new SayHelloInboundHandler());
                     }
 
                 });
