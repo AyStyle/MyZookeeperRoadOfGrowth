@@ -1,6 +1,8 @@
 package ankang.zookeeper.homework1.rpc.service;
 
-import ankang.zookeeper.homework1.rpc.service.channel.SayHelloInboundHandler;
+import ankang.zookeeper.homework1.rpc.endoder.RpcRequestDecoder;
+import ankang.zookeeper.homework1.rpc.endoder.RpcResponseEncoder;
+import ankang.zookeeper.homework1.rpc.service.handler.SayHelloInboundHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -30,8 +32,8 @@ public class Service {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
-                                .addLast()
-                                .addLast()
+                                .addLast(new RpcRequestDecoder())
+                                .addLast(new RpcResponseEncoder())
                                 .addLast(new SayHelloInboundHandler());
                     }
 

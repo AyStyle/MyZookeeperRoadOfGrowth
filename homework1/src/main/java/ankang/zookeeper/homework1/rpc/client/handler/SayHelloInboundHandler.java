@@ -1,4 +1,4 @@
-package ankang.zookeeper.homework1.rpc.client.channel;
+package ankang.zookeeper.homework1.rpc.client.handler;
 
 import ankang.zookeeper.homework1.rpc.http.RpcRequest;
 import ankang.zookeeper.homework1.rpc.http.RpcResponse;
@@ -30,7 +30,7 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx , Object msg) throws Exception {
+    public synchronized void channelRead(ChannelHandlerContext ctx , Object msg) throws Exception {
         response = (RpcResponse) msg;
         notify();
     }

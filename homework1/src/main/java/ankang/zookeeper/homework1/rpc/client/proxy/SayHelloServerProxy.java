@@ -1,6 +1,8 @@
 package ankang.zookeeper.homework1.rpc.client.proxy;
 
-import ankang.zookeeper.homework1.rpc.client.channel.SayHelloInboundHandler;
+import ankang.zookeeper.homework1.rpc.client.handler.SayHelloInboundHandler;
+import ankang.zookeeper.homework1.rpc.endoder.RpcRequestEncoder;
+import ankang.zookeeper.homework1.rpc.endoder.RpcResponseDecoder;
 import ankang.zookeeper.homework1.rpc.server.SayHelloServer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -35,8 +37,8 @@ public class SayHelloServerProxy implements SayHelloServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
-                                .addLast(new StringEncoder())
-                                .addLast(new StringDecoder())
+                                .addLast(new RpcResponseDecoder())
+                                .addLast(new RpcRequestEncoder())
                                 .addLast(handler);
                     }
                 });

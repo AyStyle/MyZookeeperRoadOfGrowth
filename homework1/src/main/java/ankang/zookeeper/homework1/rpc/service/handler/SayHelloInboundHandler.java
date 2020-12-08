@@ -1,4 +1,4 @@
-package ankang.zookeeper.homework1.rpc.service.channel;
+package ankang.zookeeper.homework1.rpc.service.handler;
 
 import ankang.zookeeper.homework1.rpc.http.RpcRequest;
 import ankang.zookeeper.homework1.rpc.http.RpcResponse;
@@ -17,8 +17,7 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
     public void channelRead(ChannelHandlerContext ctx , Object msg) throws Exception {
         final RpcRequest request = (RpcRequest) msg;
 
-        System.out.println(request.getServerClass());
-        if (SayHelloServer.class.getTypeName().equals("ankang.zookeeper.homework1.rpc.server.SayHelloServer") && "sayHello".equals(request.getServerMethod())) {
+         if ("ankang.zookeeper.homework1.rpc.server.SayHelloServer".equals(request.getServerClass()) && "sayHello".equals(request.getServerMethod())) {
             final RpcResponse response = new RpcResponse(request , sayHello());
 
             ctx.channel().writeAndFlush(response);
