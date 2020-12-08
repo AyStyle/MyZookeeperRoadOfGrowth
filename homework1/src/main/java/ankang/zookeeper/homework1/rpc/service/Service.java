@@ -9,6 +9,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryForever;
+import org.apache.zookeeper.CreateMode;
 
 /**
  * @author: ankang
@@ -16,17 +20,43 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  * @create: 2020-12-07
  */
 public class Service {
+    public static final String SERVER_PATH = "/ankang/netty";
 
-    private static final int PORT = 6969;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
+        if (args.length != 1) {
+            throw new IllegalArgumentException("缺少参数端口号！");
+        }
+        final int port = Integer.parseInt(args[0]);
+
+
+        // 1. 连接ZK服务
+        try (final CuratorFramework zk = CuratorFrameworkFactory.newClient("localhost:2181" , new RetryForever(3000))) {
+            zk.start();
+
+            // 2. 注册Netty连接服务
+            zk.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).inBackground().forPath(SERVER_PATH);
+            zk.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(SERVER_PATH + "/service" , String.format("localhost:%d" , port).getBytes());
+
+            // 3. 启动Netty服务
+            initNettyServer(port);
+        }
+
+    }
+
+    /**
+     * 初始化端口
+     *
+     * @param port 服务端口号
+     */
+    private static void initNettyServer(int port) throws InterruptedException {
         final ServerBootstrap bootstrap = new ServerBootstrap();
 
         final NioEventLoopGroup parentGroup = new NioEventLoopGroup();
         final NioEventLoopGroup childGroup = new NioEventLoopGroup();
 
         bootstrap.group(parentGroup , childGroup)
-                .localAddress(PORT)
+                .localAddress(port)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -47,5 +77,6 @@ public class Service {
             parentGroup.shutdownGracefully().sync();
         }
     }
+
 
 }

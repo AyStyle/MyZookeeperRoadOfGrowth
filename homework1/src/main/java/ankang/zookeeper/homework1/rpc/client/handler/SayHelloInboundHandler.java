@@ -5,6 +5,7 @@ import ankang.zookeeper.homework1.rpc.http.RpcResponse;
 import ankang.zookeeper.homework1.rpc.server.SayHelloServer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.Callable;
@@ -19,6 +20,7 @@ import java.util.concurrent.Future;
  */
 public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter implements SayHelloServer, Callable<String> {
 
+    @Getter
     private ChannelHandlerContext ctx;
     private RpcResponse response;
     private ExecutorService pool = Executors.newSingleThreadExecutor();
