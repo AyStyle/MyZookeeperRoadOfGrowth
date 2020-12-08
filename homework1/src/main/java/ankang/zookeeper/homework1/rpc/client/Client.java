@@ -10,7 +10,7 @@ import ankang.zookeeper.homework1.rpc.server.SayHelloServer;
  */
 public class Client {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         final SayHelloServer sayHelloServer = new SayHelloServerProxy();
 
         while (true) {
