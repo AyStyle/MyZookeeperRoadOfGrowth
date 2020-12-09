@@ -54,9 +54,9 @@ class ZkCuratorDemoTest {
 
         cf.create().withMode(CreateMode.PERSISTENT).inBackground().forPath(parentPath);
 
-        cf.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(parentPath + "/" + childNode1);
-        cf.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(parentPath + "/" + childNode2);
-        cf.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(parentPath + "/" + childNode3);
+        cf.create().withMode(CreateMode.EPHEMERAL).inBackground().forPath(parentPath + "/" + childNode1);
+        cf.create().withMode(CreateMode.EPHEMERAL).inBackground().forPath(parentPath + "/" + childNode2);
+        cf.create().withMode(CreateMode.EPHEMERAL).inBackground().forPath(parentPath + "/" + childNode3);
 
         // watched()：会设置一个监听，并等待所有inBackground操作完成
         final List<String> children = cf.getChildren().watched().forPath(parentPath);
