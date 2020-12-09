@@ -8,6 +8,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,16 +25,15 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
     @Getter
     private ChannelHandlerContext ctx;
     private RpcResponse response;
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
-
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
 
     @Override
-    public synchronized void channelRead(ChannelHandlerContext ctx , Object msg) throws Exception {
+    public synchronized void channelRead(ChannelHandlerContext ctx , Object msg) {
         response = (RpcResponse) msg;
         notify();
     }
@@ -43,7 +44,6 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
         final Future<String> future = pool.submit(this);
 
         return future.get();
-
     }
 
     @Override
@@ -52,6 +52,7 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
         wait();
         final String string = response.getObj().toString();
         response = null;
+
         return string;
     }
 }

@@ -36,7 +36,7 @@ public class Service {
 
             // 2. 注册Netty连接服务
             zk.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).inBackground().forPath(SERVER_PATH);
-            zk.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(SERVER_PATH + "/service" , String.format("localhost:%d" , port).getBytes());
+            zk.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(SERVER_PATH + "/service" , String.format("localhost:%d" , port).getBytes());
 
             // 3. 启动Netty服务
             initNettyServer(port);
