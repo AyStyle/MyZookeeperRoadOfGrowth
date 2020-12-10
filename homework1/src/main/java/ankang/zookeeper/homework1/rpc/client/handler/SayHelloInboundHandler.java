@@ -10,10 +10,7 @@ import lombok.SneakyThrows;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * @author: ankang
@@ -43,7 +40,7 @@ public class SayHelloInboundHandler extends ChannelInboundHandlerAdapter impleme
     public String sayHello() {
         final Future<String> future = pool.submit(this);
 
-        return future.get();
+        return future.get(100 , TimeUnit.MILLISECONDS);
     }
 
     @Override

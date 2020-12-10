@@ -66,21 +66,6 @@ public class SayHelloServerProxy implements SayHelloServer, Closeable {
                     break;
             }
         }).build());
-
-        // 获取服务端已经注册的节点并连接
-        try {
-            final List<String> nodes = cf.getChildren().forPath(Service.SERVER_PATH);
-            for (String node : nodes) {
-                final String path = Service.SERVER_PATH + "/" + node;
-                final byte[] bytes = cf.getData().forPath(path);
-                final String server = path + "===>" + new String(bytes);
-                connectNetty(server);
-            }
-        } catch (Exception e) {
-            cc.close();
-            cf.close();
-            throw e;
-        }
     }
 
 
@@ -93,7 +78,6 @@ public class SayHelloServerProxy implements SayHelloServer, Closeable {
                 return String.format("%s Connect to %s, %s" , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) , server , service.sayHello());
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println(services);
             }
         }
 
