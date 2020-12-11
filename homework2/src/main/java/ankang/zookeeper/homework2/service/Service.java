@@ -3,6 +3,7 @@ package ankang.zookeeper.homework2.service;
 import ankang.zookeeper.homework2.endoder.RpcRequestDecoder;
 import ankang.zookeeper.homework2.endoder.RpcResponseEncoder;
 import ankang.zookeeper.homework2.service.handler.SayHelloInboundHandler;
+import com.google.gson.JsonObject;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,6 +14,9 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryForever;
 import org.apache.zookeeper.CreateMode;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author: ankang
@@ -36,7 +40,12 @@ public class Service {
 
             // 2. 注册Netty连接服务
             zk.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).inBackground().forPath(SERVER_PATH);
-            zk.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(SERVER_PATH + "/ankang/zookeeper/homework2/service" , String.format("localhost:%d" , port).getBytes());
+
+            final JsonObject json = new JsonObject();
+            json.addProperty("last_time" , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            json.addProperty("service" , String.format("localhost:%d" , port));
+
+            zk.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).inBackground().forPath(SERVER_PATH + "/service" , json.toString().getBytes());
 
             // 3. 启动Netty服务
             initNettyServer(port);

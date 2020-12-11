@@ -1,5 +1,6 @@
 package ankang.zookeeper.homework2.endoder;
 
+import ankang.zookeeper.homework2.http.RpcRequest;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

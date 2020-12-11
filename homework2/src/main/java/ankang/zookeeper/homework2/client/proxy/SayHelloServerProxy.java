@@ -5,6 +5,8 @@ import ankang.zookeeper.homework2.endoder.RpcRequestEncoder;
 import ankang.zookeeper.homework2.endoder.RpcResponseDecoder;
 import ankang.zookeeper.homework2.server.SayHelloServer;
 import ankang.zookeeper.homework2.service.Service;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,9 +21,10 @@ import org.apache.curator.retry.RetryForever;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,21 +51,18 @@ public class SayHelloServerProxy implements SayHelloServer, Closeable {
 
         // 监听服务端节点
         cc.listenable().addListener(CuratorCacheListener.builder().forPathChildrenCache(Service.SERVER_PATH , cf , (CuratorFramework client , PathChildrenCacheEvent event) -> {
-            final String server = event.getData().getPath() + "===>" + new String(event.getData().getData());
-            switch (event.getType()) {
-                case CHILD_ADDED:
-                    connectNetty(server);
-                    break;
-                case CHILD_UPDATED:
-                    disconnectNetty(server);
-                    connectNetty(server);
-                    break;
-                case CHILD_REMOVED:
-                    disconnectNetty(server);
-                    break;
-                default:
-                    System.err.println(event.getType());
-                    break;
+            synchronized (this) {
+                final String server = event.getData().getPath() + "===>" + new Gson().fromJson(new String(event.getData().getData()) , JsonObject.class).get("service").getAsString();
+                switch (event.getType()) {
+                    case CHILD_ADDED:
+                        connectNetty(server);
+                        break;
+                    case CHILD_REMOVED:
+                        disconnectNetty(server);
+                        break;
+                    default:
+                        break;
+                }
             }
         }).build());
     }
@@ -70,13 +70,33 @@ public class SayHelloServerProxy implements SayHelloServer, Closeable {
 
     @Override
     public synchronized String sayHello() {
-        for (Map.Entry<String, SayHelloInboundHandler> entry : services.entrySet()) {
+        final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        final TreeMap<String, SayHelloInboundHandler> treeMap = new TreeMap<>((String o1 , String o2) -> {
+            try {
+                final Gson gson = new Gson();
+                final LocalDateTime t1 = LocalDateTime.parse(gson.fromJson(new String(cf.getData().forPath(o1.split("===>")[0])) , JsonObject.class).get("last_time").getAsString() , fmt);
+                final LocalDateTime t2 = LocalDateTime.parse(gson.fromJson(new String(cf.getData().forPath(o2.split("===>")[0])) , JsonObject.class).get("last_time").getAsString() , fmt);
+
+                return -t1.compareTo(t2);
+            } catch (Exception e) {
+                return 0;
+            }
+        });
+        treeMap.putAll(services);
+
+
+        for (Map.Entry<String, SayHelloInboundHandler> entry : treeMap.entrySet()) {
             final String server = entry.getKey();
             final SayHelloInboundHandler service = entry.getValue();
             try {
-                return String.format("%s Connect to %s, %s" , LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) , server , service.sayHello());
+                final String[] split = server.split("===>");
+                final JsonObject json = new JsonObject();
+                json.addProperty("service" , split[1]);
+                json.addProperty("last_time" , LocalDateTime.now().format(fmt));
+
+                cf.setData().inBackground().forPath(split[0] , json.toString().getBytes());
+                return String.format("%s Connect to %s, %s" , LocalDateTime.now().format(fmt) , server , service.sayHello());
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
